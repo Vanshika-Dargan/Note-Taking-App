@@ -7,5 +7,5 @@ export const NoteContext = React.createContext(
         addSingleNote:function(note){},
         isMarking:function(){},
         deleteForever:function(note){},
-        deleteNote:function(note){},
+        updateNote:function(note){},
     });

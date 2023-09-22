@@ -37,16 +37,22 @@ export const NoteDashBoard = () => {
   }
 
   const addNote = (noteObject)=>{
-    console.log('Rec Note From Add ', noteObject);
     const cloneNotes = [...notes];
     cloneNotes.push(noteObject);
     setNotes(cloneNotes);
   }
-  const deleteNote=(val)=>{
-    const new_notes=notes.filter(note=>note.title!==val.title)
-    setNotes(new_notes);
+  const deleteSingleNote=(tobedeleted)=>{
+    const new_notes=notes.filter(note=>note.id!==tobedeleted.id)
+     setNotes(new_notes);
     console.log(new_notes);
     deleteForever(new_notes);
+  }
+  const updateNote=({id,formData})=>{
+    console.log(formData);
+  const updated_notes=notes.filter(note=>note.id!==id);
+  updated_notes.push(formData);
+  console.log(updated_notes);
+  setNotes(updated_notes);
   }
   return (
    <Container>
@@ -56,7 +62,7 @@ export const NoteDashBoard = () => {
    <SideBar/>
   </Grid>
   <Grid item xs={8}>
-  <NoteContext.Provider  value = {{notes:notes, addSingleNote:addNote,isMarking:isMarking,deleteForever:deleteForever,deleteNote:deleteNote}}>
+  <NoteContext.Provider  value = {{notes:notes, addSingleNote:addNote,isMarking:isMarking,deleteForever:deleteForever,updateNote:updateNote}}>
    <Main/>
    </NoteContext.Provider>
   </Grid>

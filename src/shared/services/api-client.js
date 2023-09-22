@@ -27,10 +27,14 @@ export const postNote = async (noteData)=>{
 }
 
 //Update Note
-export const updateNote = async (noteData)=>{
+export const updateNote = async ({id,note})=>{
     try{
-    const URL = process.env.REACT_APP_NOTE_ADD_URL;
-    const response = await axios.post(URL,noteData)
+    console.log(id);
+    console.log(note);
+    const URL = `${process.env.REACT_APP_NOTE_ADD_URL}/${1}`;
+    console.log(URL);
+    const response = await axios.put(URL,note)
+    console.log(response);
     return response.data;
     }
     catch(err){

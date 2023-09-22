@@ -10,69 +10,62 @@ import { NoteContext } from '../context/note-context';
 import {useForm} from 'react-hook-form';
 import dayjs from 'dayjs';
 import { useApi } from '../../../shared/hooks/api-hook';
+import { Controller } from 'react-hook-form';
 
 /*
   Add and Update Screen is Same
 */
 const Add = () => {
   const location=useLocation()
-  const note=location.state?.note
-  const type=location.state?.type
-  const [title,setTitle]=useState(note?.title);
-  const [desc,setDesc]=useState(note?.desc);
+  let type=location.state?.type || 'add';
+  const note=location.state?.note || {}
+  const [dateValue, setDateValue] = useState(dayjs(note.date) || dayjs('2022-04-17'));
+  const [title,setTitle]=useState(note?.title ||'');
+  const [desc,setDesc]=useState(note?.desc || '');
+  const {register, handleSubmit, formState:{errors}, reset} = useForm()
   
- 
-  const [dateValue, setDateValue] = useState(dayjs('2022-04-17'));
-  
-  const {register, handleSubmit, formState:{errors}, reset} = useForm();
   //console.log('Register is ', {...register('password')})
   const [message , setMessage] = useState('');
   const apiCall = useApi('POST');
-  const params = useParams();
-  console.log('Params are ', params);
-  const nameRef = useRef();
-  const descRef = useRef();
-  const dateRef = useRef();
+  const updateAPICall=useApi('UPDATE');
   const errorStyle = {
     color:'red'
   }
-  const noteContext = useContext(NoteContext);
-  // const takeInput = ()=>{
-  //       const noteObject = {
-  //            title : nameRef.current.value,
-  //            desc : descRef.current.value,
-  //            date:dateRef.current.value
-  //       } 
-  //       noteContext.addSingleNote(noteObject); 
-  //       console.log('Input is ', noteObject);
-  //       setMessage('Note Added....');
-  // }
+  const noteContext = useContext(NoteContext)
   const giveError = ()=>{
     throw new Error('Error....');
   }
   const getFormData = async (formData)=>{
-    if(type==='update'){
-    noteContext.deleteNote(note);
-    }
+      if(type==='update'){
+        const id=note.id;
+        noteContext.updateNote({id,formData});
+        const result=await updateAPICall({id:id,note:formData});
+        setMessage(result.message);
+      }
+      else{
       noteContext.addSingleNote(formData); 
       const result = await apiCall(formData); 
         setMessage(result.message);
+      }
   }
+
   return (
     <form onSubmit={handleSubmit(getFormData)}>
       <h1> {type==='update'?'Update':'Add'} Note {message}</h1>
-      <TextField value={title}  {...register('title',{required:true, min:3, max:10})}  id="outlined-basic" label="Title" variant="outlined" />
+      <TextField value={title}  {...register('title',{required:true, min:3, max:10})} onChange={(event)=>setTitle(event.target.value)} id="outlined-basic" label="Title" variant="outlined" />
+     
       {errors && errors.title && errors.title.type==='required' && <p style = {errorStyle}>Title Can't be Empty</p> }
       <br/>    <br/>    <br/>
       <TextField
       value={desc}
+      
       {...register('desc', {
         validate:{
           
           checkLength:(value)=>value.length>7
         }
       })}
-      
+      onChange={(event)=>setDesc(event.target.value)}
      
           id="outlined-multiline-static"
           label="Desc"
@@ -80,14 +73,17 @@ const Add = () => {
           rows={4}
           
         />
+   
         {errors && errors.desc && errors.desc.type==='checkLength' && <p style = {errorStyle}>Len is greater than 7 Error</p> }
         <br/> <br/> 
-        {/* {giveError()} */}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker value={dateValue}  {...register('date')}  onChange={(newValue) => {
+            
             console.log('New Value is ', newValue);
             setDateValue(newValue);}}   label="Note Date" />
         </LocalizationProvider>
+
+
 
         <br/> <br/>
         <Button type='submit'  variant="contained">{type==='update'?'Update Note':'Add Note'}</Button> &nbsp;&nbsp;
