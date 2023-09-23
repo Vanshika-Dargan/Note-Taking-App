@@ -10,6 +10,8 @@ import { toHaveFormValues } from '@testing-library/jest-dom/matchers';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import { Edit } from '@mui/icons-material';
+import { Search } from '../utilities/Search';
+
 
 const View = () => {
   const navigate=useNavigate();
@@ -40,10 +42,27 @@ const View = () => {
     <div>
       <NoteContext.Consumer>
         {(value)=>{
-            
+            const result=value.clicked && val==='search' && value.searchNotes.length!==0 ?value.searchNotes:value.notes;
+            console.log(value.clicked)
             return (
               <>
-            <h1>{val=='update'?'Update Notes':val==='view'?`Total Notes ${value.notes.length}`:`Marked Notes ${value.notes.filter((val)=>val.isMarked).length}`}</h1>
+              
+            <h1>
+            {val==='update'?
+              'Update Notes':
+              val==='view'?
+              `Total Notes ${value.notes.length}`:
+              val==='delete'?
+              `Marked Notes ${value.notes.filter((val)=>val.isMarked).length}`:
+              val==='search'?
+              'Search Notes':
+              'Notes'
+              }
+              </h1>
+              
+             
+            {val==='search' &&  <Search/>} 
+            
             <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
@@ -65,7 +84,15 @@ const View = () => {
                 </TableRow>
                 </TableHead>
                <TableBody>
-                  {value.notes.map((note, index)=><TableRow key={index} style={{backgroundColor:note.isMarked?'red':''}}>
+                {/* {(val==='search' && val.clicked)?
+                value.searchNotes.map((note,index)=><TableRow key={index}>
+                  <TableCell>{index+1}</TableCell>
+                    <TableCell>{note.title}</TableCell>
+                    <TableCell>{note.desc}</TableCell>
+                    <TableCell>{note.date}</TableCell>
+                </TableRow>)
+                : */}
+                  {result.map((note, index)=><TableRow key={index} style={{backgroundColor:note.isMarked?'red':''}}>
                     <TableCell>{index+1}</TableCell>
                     <TableCell>{note.title}</TableCell>
                     <TableCell>{note.desc}</TableCell>
